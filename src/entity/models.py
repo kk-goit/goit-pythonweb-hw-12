@@ -46,16 +46,34 @@ class User(Base):
     )
     avatar: Mapped[str] = mapped_column(String(256), nullable=True)
 
-    def to_jsons(self):
-        return dumps({
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the User object.
+        
+        The dictionary contains the following keys:
+        - id: the user's id
+        - username: the user's username
+        - email: the user's email
+        - email_confirmed: whether the email has been confirmed
+        - role: the user's role
+        - avatar: the user's avatar
+        """
+        return {
             "id": self.id,
             "username": self.username,
             "email": self.email,
             "email_confirmed": self.email_confirmed,
             "role": self.role,
             "avatar": self.avatar
-        })        
+        }   
 
+    def to_jsons(self) -> str:
+        """
+        Return a JSON string representation of the User object.
+        
+        The JSON string is the same as the dictionary returned by to_dict()
+        """
+        return dumps(self.to_dict())
 
 class Contact(Base):
     __tablename__ = "contacts"

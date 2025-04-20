@@ -17,6 +17,14 @@ logger = logging.getLogger("uvicorn.error")
 
 class ContactsRepository:
     def __init__(self, session: AsyncSession, user: User):
+        """
+        Initialize the ContactsRepository with a database session and user.
+
+        Args:
+            session (AsyncSession): The SQLAlchemy asynchronous session for database operations.
+            user (User): The User object representing the owner of the contacts.
+        """
+
         self.db = session
         self.user = user
 
@@ -28,6 +36,19 @@ class ContactsRepository:
         last_name: str = None,
         email: EmailStr = None,
     ) -> Sequence[Contact]:
+        """
+        Retrieve contacts from the database that match the given parameters.
+
+        Args:
+            limit (int): The number of contacts to retrieve.
+            offset (int): The offset of the contacts to retrieve.
+            first_name (str, optional): The first name of the contacts to retrieve. Defaults to None.
+            last_name (str, optional): The last name of the contacts to retrieve. Defaults to None.
+            email (EmailStr, optional): The email address of the contacts to retrieve. Defaults to None.
+
+        Returns:
+            Sequence[Contact]: A list of contacts that match the given parameters.
+        """
         stmt = select(Contact).filter_by(user_id=self.user.id)
         if first_name:
             stmt = stmt.filter(func.lower(Contact.first_name) == func.lower(first_name))
@@ -40,11 +61,29 @@ class ContactsRepository:
         return contacts.scalars().all()
 
     async def get_contact_by_id(self, cnt_id: int) -> Contact | None:
+        """
+        Retrieve a contact by its ID from the database.
+
+        Args:
+            cnt_id (int): The ID of the contact to retrieve.
+
+        Returns:
+            Contact | None: The contact with the given ID, or None if not found.
+        """
         stmt = select(Contact).filter_by(user_id=self.user.id).filter_by(id=cnt_id)
         contact = await self.db.execute(stmt)
         return contact.scalar_one_or_none()
 
     async def create_contact(self, body: ContactsSchema) -> Contact:
+        """
+        Create a new contact.
+
+        Args:
+            body (ContactsSchema): The contact's data.
+
+        Returns:
+            Contact: The newly created contact.
+        """
         contact = Contact(**body.model_dump(), user=self.user)
         self.db.add(contact)
         await self.db.commit()
@@ -52,6 +91,15 @@ class ContactsRepository:
         return contact
 
     async def remove_contact(self, cnt_id: int) -> Contact | None:
+        """
+        Delete a contact by its ID from the database.
+
+        Args:
+            cnt_id (int): The ID of the contact to delete.
+
+        Returns:
+            Contact | None: The deleted contact, or None if not found.
+        """
         contact = await self.get_contact_by_id(cnt_id)
         if contact:
             await self.db.delete(contact)
@@ -61,6 +109,16 @@ class ContactsRepository:
     async def update_contact(
         self, cnt_id: int, body: ContactsUpdateSchema
     ) -> Contact | None:
+        """
+        Update an existing contact by its ID with the provided data.
+
+        Args:
+            cnt_id (int): The ID of the contact to update.
+            body (ContactsUpdateSchema): The data to update the contact with.
+
+        Returns:
+            Contact | None: The updated contact, or None if not found.
+        """
         contact = await self.get_contact_by_id(cnt_id)
         if contact:
             update_data = body.model_dump(exclude_unset=True)
@@ -74,7 +132,22 @@ class ContactsRepository:
         return contact
 
     def _get_upcoming_birthday_stmt(self, start_date: date, end_date: date):
-        """Add filter of the birthdays for statement"""
+        """
+        Return a SQLAlchemy statement for retrieving contacts with upcoming birthdays.
+
+        This statement is designed to be used in union_all() to retrieve contacts with
+        upcoming birthdays in the current year and the next year.
+
+        Args:
+            start_date (date): The start date of the period to retrieve contacts with upcoming
+                birthdays.
+            end_date (date): The end date of the period to retrieve contacts with upcoming
+                birthdays.
+
+        Returns:
+            sqlalchemy.sql.selectable.Select: The statement for retrieving contacts with upcoming
+                birthdays.
+        """
         return (
             select(Contact)
             .filter_by(user_id=self.user.id)
@@ -109,6 +182,17 @@ class ContactsRepository:
         )
 
     async def get_contacts_upcoming_birthdays(self, days: int, limit: int, offset: int):
+        """
+        Retrieve contacts with upcoming birthdays within a given number of days from the current date.
+
+        Args:
+            days (int): The number of days to retrieve contacts with upcoming birthdays.
+            limit (int): The maximum number of contacts to retrieve.
+            offset (int): The offset of contacts to retrieve.
+
+        Returns:
+            list[Contact]: A list of contacts with upcoming birthdays.
+        """
         today = date.today()
         end_date = today + timedelta(days=days)
         year_end = date(today.year, 12, 31)

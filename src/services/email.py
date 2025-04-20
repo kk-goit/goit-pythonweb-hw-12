@@ -25,11 +25,32 @@ conf = ConnectionConfig(
 )
 
 
-async def send_email(email: EmailStr, username: str, host: str):
+async def send_email(
+    email: EmailStr,
+    username: str,
+    host: str,
+    subject: str,
+    template_name: str,
+    exp_days: int,
+) -> None:
+    """
+    Send an email to the user with a token to be used to confirm email or restore password.
+
+    Args:
+        email (EmailStr): The email address of the user.
+        username (str): The username of the user.
+        host (str): The host of the API.
+        subject (str): The subject of the email.
+        template_name (str): The name of the template to be used.
+        exp_days (int): The number of days the token will be valid.
+
+    Returns:
+        None
+    """
     try:
-        token_verification = create_email_token({"sub": email})
+        token_verification = create_email_token({"sub": email}, exp_days)
         message = MessageSchema(
-            subject="Confirm your email",
+            subject=subject,
             recipients=[email],
             template_body={
                 "host": host,
@@ -40,6 +61,51 @@ async def send_email(email: EmailStr, username: str, host: str):
         )
 
         fm = FastMail(conf)
-        await fm.send_message(message, template_name="confirm_email.html")
+        await fm.send_message(message, template_name=template_name)
     except ConnectionErrors as err:
         logger.error(err)
+
+
+async def send_pwd_restore_email(email: EmailStr, username: str, host: str) -> None:
+    """
+    Send an email to the user with a password reset token.
+
+    Args:
+        email (EmailStr): The email address of the user.
+        username (str): The username of the user.
+        host (str): The host of the API.
+
+    Returns:
+        None
+    """
+    return await send_email(
+        email,
+        username,
+        host,
+        "Reset password for API",
+        "pwd_restore_email.html",
+        settings.EMAIL_PASSWORD_TOKEN_EXPIRE_DAYS,
+    )
+
+
+async def send_confirmation_email(email: EmailStr, username: str, host: str) -> None:
+    """
+    Send an email to the user with a confirmation token.
+
+    Args:
+        email (EmailStr): The email address of the user.
+        username (str): The username of the user.
+        host (str): The host of the API.
+
+    Returns:
+        None
+    """
+
+    return await send_email(
+        email,
+        username,
+        host,
+        "Confirm your email",
+        "confirm_email.html",
+        settings.EMAIL_TOKEN_EXPIRE_DAYS,
+    )

@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # jwt
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     EMAIL_TOKEN_EXPIRE_DAYS: int = 7
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    EMAIL_PASSWORD_TOKEN_EXPIRE_DAYS: int = 1
     ALGORITHM: str = "HS256"
     SECRET_KEY: str = "secret"
 
@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     LIMIT_ORIGINS: str = "*"
     LIMIT4_USERS_ME: str = "5/minute"
     LIMIT4_USERS_RESENT: str = "3/day"
+    LIMIT4_USERS_PASSWD: str = "1/day"
 
     # mail by meta.ua
     MAIL_USERNAME: EmailStr = "???@meta.ua"

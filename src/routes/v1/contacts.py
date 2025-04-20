@@ -25,6 +25,19 @@ async def get_contacts(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_authorized_user),
 ):
+    """
+    Get a list of contacts filtered by optional parameters.
+
+    Args:
+        limit (int): The maximum number of contacts to retrieve. Defaults to 10.
+        offset (int): The offset of contacts to retrieve. Defaults to 0.
+        first_name (str): The first name of the contacts to retrieve. Defaults to None.
+        last_name (str): The last name of the contacts to retrieve. Defaults to None.
+        email (EmailStr): The email of the contacts to retrieve. Defaults to None.
+
+    Returns:
+        list[ContactsResponse]: A list of contacts filtered by the given parameters.
+    """
     service = ContactsService(db, user)
     return await service.get_contacts(limit, offset, first_name, last_name, email)
 
@@ -41,6 +54,16 @@ async def get_contact(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_authorized_user),
 ):
+    """
+    Retrieve a contact by its ID from the database.
+
+    Args:
+        cnt_id (int): The ID of the contact to retrieve.
+
+    Returns:
+        ContactsResponse: The contact with the given ID, or raises an HTTPException
+            with a 404 status code if not found.
+    """
     service = ContactsService(db, user)
     contact = await service.get_contact(cnt_id)
     if contact is None:
@@ -61,6 +84,15 @@ async def create_contact(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_authorized_user),
 ):
+    """
+    Create a new contact.
+
+    Args:
+        body (ContactsSchema): The contact's data.
+
+    Returns:
+        ContactsResponse: The newly created contact.
+    """
     service = ContactsService(db, user)
     return await service.create_contact(body)
 
@@ -72,6 +104,19 @@ async def update_contact(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_authorized_user),
 ):
+    """
+    Update a contact by its ID.
+
+    Args:
+        cnt_id (int): The ID of the contact to update.
+        body (ContactsUpdateSchema): The data to update the contact with.
+
+    Returns:
+        ContactsResponse: The updated contact.
+
+    Raises:
+        HTTPException: If the contact with the given ID is not found.
+    """
     service = ContactsService(db, user)
     contact = await service.update_contact(cnt_id, body)
     if contact is None:
@@ -88,6 +133,18 @@ async def delete_contact(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_authorized_user),
 ):
+    """
+    Delete a contact by its ID.
+
+    Args:
+        cnt_id (int): The ID of the contact to delete.
+
+    Returns:
+        None
+
+    Raises:
+        HTTPException: If the contact with the given ID is not found.
+    """
     service = ContactsService(db, user)
     await service.remove_contact(cnt_id)
     return None
@@ -101,5 +158,16 @@ async def upcoming_birthdays(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_authorized_user),
 ):
+    """
+    Retrieve a list of contacts that have an upcoming birthday within the specified number of days.
+
+    Args:
+        days (int): The number of days to retrieve contacts with upcoming birthdays.
+        limit (int): The maximum number of contacts to retrieve. Defaults to 10.
+        offset (int): The offset of contacts to retrieve. Defaults to 0.
+
+    Returns:
+        list[ContactsResponse]: A list of contacts with upcoming birthdays.
+    """
     service = ContactsService(db, user)
     return await service.get_contacts_upcoming_birthdays(days, limit, offset)
