@@ -10,7 +10,7 @@ logger = logging.getLogger("uvicorn.error")
 logger.setLevel(logging.DEBUG if settings.ENV == "dev" else logging.INFO)
 
 app = FastAPI(
-    title="Users Contacts Organizer", version="1.3", description="GoIT Home Work 10"
+    title="Users Contacts Organizer", version="1.5", description="GoIT Home Work 12"
 )
 logger.debug(
     "Starting FastAPI app '%s' v%s in environment '%s'",

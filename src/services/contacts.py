@@ -16,7 +16,7 @@ class ContactsService:
             db (AsyncSession): The SQLAlchemy asynchronous session for database operations.
             user (User): The User object representing the owner of the contacts.
         """
-        
+
         self.repository = ContactsRepository(db, user)
 
     async def create_contact(self, body: ContactsSchema):

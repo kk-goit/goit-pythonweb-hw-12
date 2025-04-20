@@ -62,7 +62,7 @@ class AuthService:
         Returns:
             bool: True if the password is valid, False otherwise.
         """
-        
+
         return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
     def _hash_token(self, token: str):  # noqa
@@ -77,7 +77,7 @@ class AuthService:
         """
         return hashlib.sha256(token.encode()).hexdigest()
 
-    def _generate_password(self) -> str: #noqa
+    def _generate_password(self) -> str:  # noqa
         """
         Generate a random password of maximum length.
 
@@ -88,7 +88,7 @@ class AuthService:
             str: The generated password.
         """
         characters = string.ascii_letters + string.digits + "+-=_/"
-        return ''.join(secrets.choice(characters) for _ in range(PASSWD_MAX_LENGTH))
+        return "".join(secrets.choice(characters) for _ in range(PASSWD_MAX_LENGTH))
 
     async def authenticate(self, username: str, password: str) -> User:
         """
@@ -105,7 +105,7 @@ class AuthService:
             HTTPException: If the username or password are incorrect,
                 or if the user's email is not confirmed yet.
         """
-        
+
         user = await self.user_repository.get_user_by_username(username)
         if not user:
             raise HTTPException(
@@ -180,7 +180,7 @@ class AuthService:
         new_password = self._generate_password()
         hashed_password = self._hash_password(new_password)
         user = await self.user_repository.reset_password(user_id, hashed_password)
-        return dict(user.to_dict(), new_password = new_password)
+        return dict(user.to_dict(), new_password=new_password)
 
     def create_access_token(self, user_id: int) -> str:
         """

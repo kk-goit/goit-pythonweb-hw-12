@@ -5,6 +5,7 @@ from src.conf.config import settings
 
 logger = logging.getLogger("uvicorn.error")
 
+
 def get_redis_client() -> redis.Redis:
     """
     Initializes and returns a Redis client instance.
@@ -19,7 +20,7 @@ def get_redis_client() -> redis.Redis:
 async def rewoke_jwt_token(client: redis.Redis, token: str, exp: int) -> None:
     """
     Revokes a JWT token in Redis so that it can't be used after the call.
-    
+
     Args:
     - client (redis.Redis): Redis client.
     - token (str): JWT token to be revoked.
@@ -30,6 +31,7 @@ async def rewoke_jwt_token(client: redis.Redis, token: str, exp: int) -> None:
         await client.setex(
             f"bl:{token}", int(exp - datetime.now(timezone.utc).timestamp()), "1"
         )
+
 
 async def is_jwt_token_rewoked(client: redis.Redis, token: str) -> bool:
     """
@@ -42,5 +44,5 @@ async def is_jwt_token_rewoked(client: redis.Redis, token: str) -> bool:
     Returns:
         bool: True if the token is revoked in Redis, False otherwise.
     """
-    
+
     return await client.exists(f"bl:{token}")

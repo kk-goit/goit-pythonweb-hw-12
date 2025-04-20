@@ -49,7 +49,7 @@ class User(Base):
     def to_dict(self) -> dict:
         """
         Return a dictionary representation of the User object.
-        
+
         The dictionary contains the following keys:
         - id: the user's id
         - username: the user's username
@@ -64,16 +64,17 @@ class User(Base):
             "email": self.email,
             "email_confirmed": self.email_confirmed,
             "role": self.role,
-            "avatar": self.avatar
-        }   
+            "avatar": self.avatar,
+        }
 
     def to_jsons(self) -> str:
         """
         Return a JSON string representation of the User object.
-        
+
         The JSON string is the same as the dictionary returned by to_dict()
         """
         return dumps(self.to_dict())
+
 
 class Contact(Base):
     __tablename__ = "contacts"

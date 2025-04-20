@@ -40,9 +40,9 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool = True
 
     # Cloudinary
-    CLOUDINARY_NAME: str
-    CLOUDINARY_API_KEY: str
-    CLOUDINARY_API_SECRET: str
+    CLOUDINARY_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
 
     model_config = ConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=True, extra="ignore"

@@ -24,6 +24,7 @@ from src.utils.depended_services import get_auth_service
 router = APIRouter(prefix="/auth", tags=["authorization"])
 logger = logging.getLogger("uvicorn.error")
 
+
 @router.post("/sign-up", response_model=UserResponse)
 async def register(
     user_data: UserCreate,
@@ -42,7 +43,10 @@ async def register(
     """
     user = await auth_service.register_user(user_data)
     background_tasks.add_task(
-        send_confirmation_email, user_data.email, user_data.username, str(request.base_url)
+        send_confirmation_email,
+        user_data.email,
+        user_data.username,
+        str(request.base_url),
     )
     return user
 
