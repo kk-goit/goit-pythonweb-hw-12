@@ -3,8 +3,8 @@ from pydantic import ConfigDict, EmailStr
 
 
 class Settings(BaseSettings):
-    BIND_HOST: str = "localhost"
-    BIND_PORT: int = 8000
+    BIND_HOST: str = "0.0.0.0"
+    BIND_PORT: int = 80
     ENV: str = "dev"
 
     # SQL DB
